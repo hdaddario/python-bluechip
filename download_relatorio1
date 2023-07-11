@@ -1,0 +1,64 @@
+import os
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+options = Options()
+options.add_experimental_option("detach", True)
+driver = webdriver.Chrome(options=options)
+from time import sleep
+# from credenciais import username
+# from credenciais import password
+
+login_url = 'https://app-auth.pipefy.com/login'
+username = "operacional@bluechipriscos.com.br"
+password = "ChipBlue52!"
+
+wait = WebDriverWait(driver, 60)
+driver.get(login_url)
+
+campo_login = wait.until(EC.element_to_be_clickable(
+    (By. XPATH, '//*[@id="root"]/div/div/form/div/div/div/div[2]/div[2]/span/div/div/div/div/div/div/div/div/div/div[3]/div[1]/div/input'))).send_keys(username)
+campo_senha = wait.until(EC.element_to_be_clickable(
+    (By. XPATH, '//*[@id="root"]/div/div/form/div/div/div/div[2]/div[2]/span/div/div/div/div/div/div/div/div/div/div[3]/div[2]/div[1]/div/input'))).send_keys(password)
+botao_entrar = wait.until(EC.element_to_be_clickable(
+    (By. XPATH, '//*[@id="root"]/div/div/form/div/div/div/button/span'))).click()
+sleep(5)
+
+report_url = 'https://app.pipefy.com/pipes/303149085/reports_v2/300491935'
+driver.get(report_url)
+
+botao_exportar = wait.until(EC.element_to_be_clickable(
+    (By. XPATH, '//*[@id="pipe_placeholder"]/div[2]/div/div[1]/div[2]/div[1]/div[1]/div[3]/div/div/button'))).click()
+botao_download =  wait.until(EC.element_to_be_clickable(
+    (By. XPATH, '//button[@title="Download"]'))).click()
+sleep(6)
+
+def encontrar_arquivo_mais_recente(pasta):
+    arquivos = os.listdir(pasta)
+    arquivos = [os.path.join(pasta, arquivo) for arquivo in arquivos]
+    arquivos = [arquivo for arquivo in arquivos if os.path.isfile(arquivo)]
+    
+    if not arquivos:
+        return None
+    
+    arquivo_mais_recente = max(arquivos, key=os.path.getmtime)
+    return arquivo_mais_recente
+
+pasta = 'C://Users/Giovana/Downloads'
+arquivo_mais_recente = encontrar_arquivo_mais_recente(pasta)
+
+if arquivo_mais_recente:
+    print("O arquivo mais recente é:", arquivo_mais_recente)
+else:
+    print("A pasta está vazia.")
+
+os.rename(arquivo_mais_recente, 'C://Users/Giovana/Downloads/movimentacoes.xlsx')
+
+import shutil
+
+shutil.move('C://Users/Giovana/Downloads/movimentacoes.xlsx', 'C://Users/Giovana/Downloads/relatorioMovimentacoes/movimentacoes.xlsx')
+sleep(1)
+driver.quit()
+
